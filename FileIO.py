@@ -15,6 +15,7 @@ Changelog:
 11/08/18 - Modified from the original fileIO script.
 11/09/18 - Removed specialized file loading functions. Added filtering to GetFile()
 11/09/18 - Added CLI prompts and window naming for GetFile() and GetDir()
+11/16/18 - Added GetFiles(). Returns an iterable list of selected files.
 -------------------------------------------------------------------------------
 """
 
@@ -124,6 +125,54 @@ def GetFile(initial_dir="", default_file="", filters=[("CSV","*.csv"), ("Text","
 
     return fname
 
+def GetFiles(initial_dir="", filters=[("CSV","*.csv"), ("Text","*.txt")],
+            cli_prompt="Select a file:", window_name='Select File', quiet = False):
+    '''Opens a window that allows a user to select multiple files.
+       Filters can be applied to narrow results.
+       Returns an iterable list of selected files.
+       
+       Inputs
+       -------
+       initial_dir : str (optional)
+           The starting directory for the file search. Defaults to the
+           directory of the script if no input is given.
+       filter  : list of tuples (optional)
+           A file filter composed of strings in a dict. Valid input is show below
+               [("CSV","*.csv"), ("Text","*.txt")]
+           If no argument is specified only .txt and .csv files will be shown.
+       cli_prompt: str (optional)
+           The command line interface prompt for file selection.
+       window_name : str (optional)
+           Name of the GUI window.
+       quiet : bool (optional)
+           If true, the logging will be surpressed.
+       
+       Outputs
+       -------
+       fname : iterable list
+           A list of strings to the path of the selected files.
+    '''
+    
+    #Set Window Attributes
+    InitFileWindow()
+    
+    #Get Specified File
+    if not quiet: print(cli_prompt)
+    if IsPython3:
+         fname = filedialog.askopenfilenames(initialdir=initial_dir,          \
+                      title = window_name, filetypes=filters)
+    else:
+         fname = tkFileDialog.askopenfilenames(initialdir=initial_dir,        \
+                      title = window_name, filetypes=filters)
+         
+    #fname = os.path.normpath(fname)
+    if not quiet:
+        for i in fname:
+            print(i)
+        print("")
+
+    return fname
+
 def InitFileWindow():
     '''Called before GetFile() and GetDir() in order to hide hidden elements
        on UNIX systems. The user has the option to toggle file hidding.
@@ -161,4 +210,5 @@ if __name__ == "__main__":
     '''   
 
     file_temp = GetFile()
+    files_temp = GetFiles()
     dir_temp = GetDir()
